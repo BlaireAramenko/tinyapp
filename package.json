@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/BlaireAramenko/tinyapp/issues"
   },
-  "homepage": "https://github.com/BlaireAramenko/tinyapp#readme"
+  "homepage": "https://github.com/BlaireAramenko/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
