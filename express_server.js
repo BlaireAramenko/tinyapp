@@ -24,6 +24,15 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
+/* app.use((req, res, next) => {
+  const userId = req.cookies.username;
+  if (userId) {
+    res.locals.userId = userId;
+  }
+  next();
+}); */
+
+
 // database
 const users = {
   userRandomID: {
@@ -54,13 +63,6 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-
-app.get("/urls", (req, res) => {
-  //console.log("request object", req);
-  const templateVars = { urls: urlDatabase, username: req.cookies.username };
-  res.render("urls_index", templateVars);
-});
-
 app.get('/urls/new', (req, res) => {
   const username = req.cookies["username"];
   res.render('urls_new', { username });
@@ -89,7 +91,18 @@ app.get('/register', (req, res) => {
   res.send(formTemplate);
 });
 
+function checkUserEmail(email) {
+  // check if email is already used
+  for (const userId in users) {
+    const user = users[userId];
+    if (user.email === email) {
+      return true;
+    }
+  }
+  return false;
+}
 app.post('/register', (req, res) => {
+ 
   const { email, password } = req.body;
 
   // check if email/pw are empty
@@ -98,13 +111,9 @@ app.post('/register', (req, res) => {
     return;
   }
 
-  // check if email is already used
-  for (const userId in users) {
-    const user = users[userId];
-    if (user.email === email) {
-      res.status(400).send('This email address is already in use!');
-      return;
-    }
+  let userEmail = checkUserEmail(email);
+  if(userEmail) {
+    return res.status(400).send("The email is already there");
   }
 
   // generate new random ID for the user
@@ -118,7 +127,7 @@ app.post('/register', (req, res) => {
   };
 
   // set user_id cookie to newly generated user ID
-  res.cookie('username', userId);
+  res.cookie('user_id', userId);
 
   // test users object
   console.log(users);
@@ -231,7 +240,7 @@ app.get("/u/:id", (req, res) => {
 app.get('/urls', (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
-  res.render('urls_index', { user });
+  res.render('urls_index', { urls: urlDatabase, user: user });
 });
 
 
