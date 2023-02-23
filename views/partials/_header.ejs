@@ -19,13 +19,8 @@
       </div>
     </div>
     <% if (!username) { %> 
-    <form method="POST" action="/login">
-      <label>
-        Username:
-        <input type="text" name="username" />
-      </label>
-      <button type="submit">Login</button>
-    </form> 
+      <a class="nav-item nav-link" href="/login">Login</a>
+      <a class="nav-item nav-link" href="/register">Register</a>
     <% } else { %>
     <form method="POST" action="/logout">
       <label> <%= username %> </label>

@@ -1,4 +1,5 @@
 const express = require("express");
+const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const app = express();
 const PORT = 8080; // default port 8080
@@ -15,11 +16,13 @@ const generateRandomString = function() {
 
 app.set("view engine", "ejs");
 
+app.use(morgan('dev'));
+
 app.use(cookieParser());
 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // database
 const users = {
@@ -142,11 +145,53 @@ app.post("/urls/:id", (req, res) => {
   res.redirect('/urls');
 });
 
+app.get('urls/login', (req, res) => {
+  //res.render('urls/login');
+  const formTemplate = `
+    <form method="POST" action="/register">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+      <br>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+      <br>
+      <input type="submit" value="Register">
+    </form>
+  `;
+  res.send(formTemplate);
+});
+
+app.post('urls/login', (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  if (!username || !password) {
+    return res.status(401).send('please provide username & password.');
+  }
+
+  let foundUser = null;
+  for (const userId in users) {
+    const user = users[userId];
+    if (user.username === username) {
+      foundUser = user;
+    }
+  }
+  if (!foundUser) {
+    res.status(400).send('this username was not found.');
+  }
+
+  if (foundUser.password !== password) {
+    return res.status(400).send('password is invalid');
+  }
+  res.redirect('/urls');
+});
+
+/*
 app.post('/login', (req, res) => {
   const { username } = req.body;
   res.cookie('username', username);
   res.redirect('/urls');
-});
+});*/
 
 app.post('/logout', (req, res) => {
   res.clearCookie('username');
