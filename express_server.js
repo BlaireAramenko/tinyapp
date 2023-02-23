@@ -41,13 +41,18 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
+/* app.get("/urls/new", (req, res) => {
   res.render("urls_new");
-});
+}); */
 
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: "http://www.lighthouselabs.ca" };
   res.render("urls_show", templateVars);
+});
+
+app.get('/urls/new', (req, res) => {
+  const username = req.session.username; 
+  res.render('urls_new', { username }); 
 });
 
 app.post("/urls", (req, res) => {
@@ -84,7 +89,7 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-/*app.use((req, res, next) => {
+/* app.use((req, res, next) => {
   const username = req.cookies.username;
   res.locals.username = username;
   next();
@@ -104,6 +109,8 @@ app.get('/urls/new', (req, res) => {
   };
   res.render('urls_new', templateVars);
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

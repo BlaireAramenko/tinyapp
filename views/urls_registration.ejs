@@ -14,33 +14,28 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-
-    <title>New URL - TinyApp Example</title>
+    <title>Register here! :)</title>
   </head>
-
   <body>
-    <%- include('partials/_header') %>
-
+    <% include partials/_header %>
     <main style="margin: 1em;">
-      <h3>Create TinyURL</h3>
-      <% if (username) { %>
-        <p>Welcome, <%= username %>!</p>
-      <% } else { %>
-        <p>Please log in to create a new URL.</p>
-      <% } %>
-      <form class="form-inline" action="/urls" method="POST">
-        <div class="form-group mb-2">
-          <label for="longURL">Enter a URL:</label>
-          <input
-            class="form-control"
-            type="text"
-            name="longURL"
-            placeholder="http://"
-            style="width: 300px; margin: 1em"
-          />
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </form>
+      <h3>Register</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Short URL ID</th>
+            <th scope="col">Long URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (let id in urls) { %>
+            <tr>
+              <td><%= id %></td>
+              <td><%= urls[id] %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
     </main>
     <!-- Bootstrap JS -->
     <script
