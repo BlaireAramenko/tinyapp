@@ -61,16 +61,17 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+app.get('/urls/new', (req, res) => {
+  const username = req.cookies["username"];
+  res.render('urls_new', { username });
+});
 
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: "http://www.lighthouselabs.ca" };
   res.render("urls_show", templateVars);
 });
 
-app.get('/urls/new', (req, res) => {
-  const username = req.session.username;
-  res.render('urls_new', { username });
-});
+
 
 app.get('/register', (req, res) => {
   // registration form
@@ -117,7 +118,7 @@ app.post('/register', (req, res) => {
   };
 
   // set user_id cookie to newly generated user ID
-  res.cookie('user_id', userId);
+  res.cookie('username', userId);
 
   // test users object
   console.log(users);
@@ -145,23 +146,14 @@ app.post("/urls/:id", (req, res) => {
   res.redirect('/urls');
 });
 
-app.get('urls/login', (req, res) => {
-  //res.render('urls/login');
+app.get('/login', (req, res) => {
+  res.render('urls_login');
   const formTemplate = `
-    <form method="POST" action="/register">
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
-      <br>
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
-      <br>
-      <input type="submit" value="Register">
-    </form>
   `;
   res.send(formTemplate);
 });
 
-app.post('urls/login', (req, res) => {
+app.post('/login', (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
@@ -183,6 +175,7 @@ app.post('urls/login', (req, res) => {
   if (foundUser.password !== password) {
     return res.status(400).send('password is invalid');
   }
+  res.cookie('username', username);
   res.redirect('/urls');
 });
 
