@@ -13,21 +13,34 @@ const generateRandomString = function() {
   return result;
 };
 
+app.set("view engine", "ejs");
+
 app.use(cookieParser());
 
 app.use(express.urlencoded({ extended: true }));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.set("view engine", "ejs");
-
+// database
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.send("Homepage!");
 });
 
 app.get("/urls.json", (req, res) => {
@@ -38,15 +51,13 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+
 app.get("/urls", (req, res) => {
   //console.log("request object", req);
   const templateVars = { urls: urlDatabase, username: req.cookies.username };
   res.render("urls_index", templateVars);
 });
 
-/* app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
-}); */
 
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: "http://www.lighthouselabs.ca" };
@@ -73,6 +84,45 @@ app.get('/register', (req, res) => {
   `;
   res.send(formTemplate);
 });
+
+app.post('/register', (req, res) => {
+  const { email, password } = req.body;
+
+  // check if email/pw are empty
+  if (!email || !password) {
+    res.status(400).send('The email and password fields are required!');
+    return;
+  }
+
+  // check if email is already used
+  for (const userId in users) {
+    const user = users[userId];
+    if (user.email === email) {
+      res.status(400).send('This email address is already in use!');
+      return;
+    }
+  }
+
+  // generate new random ID for the user
+  const userId = generateRandomString();
+
+  // add new user to the users object
+  users[userId] = {
+    id: userId,
+    email: email,
+    password: password // not a secure way to store pw but will update later
+  };
+
+  // set user_id cookie to newly generated user ID
+  res.cookie('user_id', userId);
+
+  // test users object
+  console.log(users);
+
+  // redirect the user to /urls
+  res.redirect('/urls');
+});
+
 
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
@@ -107,12 +157,6 @@ app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
-
-/* app.use((req, res, next) => {
-  const username = req.cookies.username;
-  res.locals.username = username;
-  next();
-}); */
 
 app.get('/urls', (req, res) => {
   const templateVars = {
