@@ -1,20 +1,23 @@
 const express = require("express");
+const bodyParser = require('body-parser');
 const app = express();
 const PORT = 8080; // default port 8080
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 
-function generateRandomString() {
+const generateRandomString = function() {
   const alphanumChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < 6; i++) {
     result += alphanumChars.charAt(Math.floor(Math.random() * alphanumChars.length));
   }
   return result;
-}
+};
 
-app.use(cookieParser())
+app.use(cookieParser());
 
 app.use(express.urlencoded({ extended: true }));
+
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
@@ -25,7 +28,7 @@ const urlDatabase = {
 
 app.get("/", (req, res) => {
   res.send("Hello!");
-}); 
+});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -51,8 +54,24 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
-  const username = req.session.username; 
-  res.render('urls_new', { username }); 
+  const username = req.session.username;
+  res.render('urls_new', { username });
+});
+
+app.get('/register', (req, res) => {
+  // registration form
+  const formTemplate = `
+    <form method="POST" action="/register">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+      <br>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+      <br>
+      <input type="submit" value="Register">
+    </form>
+  `;
+  res.send(formTemplate);
 });
 
 app.post("/urls", (req, res) => {
