@@ -138,13 +138,13 @@ app.post('/register', (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    res.status(400).send('the email and password fields are required!');
+    res.status(400).send('The email and password fields are required.');
     return;
   }
 
   const userEmail = helpers.getUserByEmail(email, users);
   if (userEmail) {
-    return res.status(400).send("the email already exists.");
+    return res.status(400).send("The email already exists.");
   }
 
   // generate new random ID for the user
@@ -170,7 +170,7 @@ app.post("/urls", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
   if (!user) {
-    res.status(403).send('you need to be logged in to create new URLs!');
+    res.status(403).send('Log in to create new URLs.');
     return;
   }
   const shortURL = generateRandomString();
@@ -190,7 +190,7 @@ app.post("/urls/:id/delete", (req, res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    res.status(403).send("not allowed");
+    res.status(403).send("Not allowed.");
   }
 });
 
@@ -219,7 +219,7 @@ app.post("/login", (req, res) => {
     req.session.user_id = user.id;
     res.redirect('/urls');
   } else {
-    res.status(403).send('invalid email or password');
+    res.status(403).send('Oops! Invalid email or password. Try again.');
   }
 
   res.session('user_id', user.id);
@@ -257,14 +257,13 @@ app.get("/urls", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
   if (!user) {
-    res.status(401).send("please log in or register to view your URLs.");
+    res.status(401).send("Uh oh! Log in or register to view your URLs.");
   } else {
     const urls = urlsForUser(userId, urlDatabase);
     const templateVars = { urls, user };
     res.render("urls_index", templateVars);
   }
 });
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
