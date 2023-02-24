@@ -147,13 +147,13 @@ app.post('/register', (req, res) => {
 
   // check if email/pw are empty
   if (!email || !password) {
-    res.status(400).send('The email and password fields are required!');
+    res.status(400).send('the email and password fields are required!');
     return;
   }
 
   let userEmail = checkUserEmail(email);
   if(userEmail) {
-    return res.status(400).send("The email is already there");
+    return res.status(400).send("the email is already there");
   }
 
   // generate new random ID for the user
@@ -200,9 +200,12 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  const shortURL = req.params.id;
-  delete urlDatabase[shortURL];
-  res.redirect('/urls');
+  if (urlDatabase[req.params.shortURL].userID === req.cookies["userID"]) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  } else {
+    res.status(403).send("not allowed");
+  }
 });
 
 app.post("/urls/:id", (req, res) => {
@@ -254,7 +257,7 @@ app.post('/login', (req, res) => {
 
 
 app.post('/logout', (req, res) => {
-  req.session = null;
+  req.cookies = null;
   res.clearCookie('user_id');
   res.redirect('/login');
 });
@@ -271,12 +274,28 @@ app.get("/u/:id", (req, res) => {
 });
 
 
-app.get('/urls', (req, res) => {
+
+const urlsForUser = (id, db) => {
+  const userURLs = {};
+  for (let url in db) {
+    if (id === db[url].userID) {
+      userURLs[url] = db[url];
+    }
+  }
+  return userURLs;
+};
+
+app.get("/urls", (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
-  res.render('urls_index', { urls: urlDatabase, user: user });
+  if (!user) {
+    res.status(401).send("please log in or register to view your URLs.");
+  } else {
+    const urls = urlsForUser(userId, urlDatabase);
+    const templateVars = { urls, user };
+    res.render("urls_index", templateVars);
+  }
 });
-
 
 
 app.listen(PORT, () => {
