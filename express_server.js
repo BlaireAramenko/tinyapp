@@ -64,9 +64,16 @@ app.get("/hello", (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
-  const username = req.cookies["username"];
-  res.render('urls_new', { username });
+  const userId = req.cookies.user_id;
+  console.log('userId', userId);
+  const user = users[userId];
+  const templateVars = {
+    username: req.cookies.username,
+    user: user
+  };
+  res.render('urls_new', templateVars);
 });
+
 
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: "http://www.lighthouselabs.ca" };
@@ -252,12 +259,7 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 }); */
 
-app.get('/urls/new', (req, res) => {
-  const templateVars = {
-    username: req.cookies.username
-  };
-  res.render('urls_new', templateVars);
-});
+
 
 
 
