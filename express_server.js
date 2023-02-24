@@ -24,13 +24,6 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-/* app.use((req, res, next) => {
-  const userId = req.cookies.username;
-  if (userId) {
-    res.locals.userId = userId;
-  }
-  next();
-}); */
 
 
 // database
@@ -67,14 +60,18 @@ app.get('/urls/new', (req, res) => {
   const userId = req.cookies.user_id;
   console.log('userId', userId);
   const user = users[userId];
-  const templateVars = {
-    username: req.cookies.username,
-    user: user
-  };
-  res.render('urls_new', templateVars);
+  if (user) {
+    const templateVars = {
+      username: req.cookies.username,
+      user: user
+    };
+    res.render('urls_new', templateVars);
+  } else {
+    res.redirect('/login');
+  }
 });
 
-
+//make sure id is at the bottom of hard coded ones like urls/new
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: "http://www.lighthouselabs.ca" };
   res.render("urls_show", templateVars);
@@ -83,8 +80,11 @@ app.get("/urls/:id", (req, res) => {
 
 
 app.get('/register', (req, res) => {
+  if (req.cookies.user_id) {
+    res.redirect('/urls');
+  } else {
   // registration form
-  const formTemplate = `
+    const formTemplate = `
     <form method="POST" action="/register">
       <label for="email">Email:</label>
       <input type="email" id="email" name="email" required>
@@ -95,7 +95,8 @@ app.get('/register', (req, res) => {
       <input type="submit" value="Register">
     </form>
   `;
-  res.send(formTemplate);
+    res.send(formTemplate);
+  }
 });
 
 function checkUserEmail(email) {
@@ -145,6 +146,12 @@ app.post('/register', (req, res) => {
 
 
 app.post("/urls", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  if (!user) {
+    res.status(403).send('You need to be logged in to create new URLs!');
+    return;
+  }
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
@@ -163,38 +170,16 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.render('urls_login');
-  const formTemplate = `
+  if (req.cookies.user_id) {
+    res.redirect('/urls');
+  } else {
+    res.render('urls_login');
+    const formTemplate = `
   `;
-  res.send(formTemplate);
+    res.send(formTemplate);
+  }
 });
-/* old code--now updating based on "update login handler". see new code below this commented out one.
-app.post('/login', (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
 
-  if (!username || !password) {
-    return res.status(401).send('please provide username & password.');
-  }
-
-  let foundUser = null;
-  for (const userId in users) {
-    const user = users[userId];
-    if (user.username === username) {
-      foundUser = user;
-    }
-  }
-  if (!foundUser) {
-    res.status(400).send('this username was not found.');
-  }
-
-  if (foundUser.password !== password) {
-    return res.status(400).send('password is invalid');
-  }
-  res.cookie('username', username);
-  res.redirect('/urls');
-});
-*/
 
 app.post('/login', (req, res) => {
   const email = req.body.email;
@@ -225,15 +210,7 @@ app.post('/login', (req, res) => {
 
 
 
-/*
-app.post('/login', (req, res) => {
-  const { username } = req.body;
-  res.cookie('username', username);
-  res.redirect('/urls');
-});*/
-
 app.post('/logout', (req, res) => {
-  //res.clearCookie('username');
   req.session = null;
   res.clearCookie('user_id');
   res.redirect('/login');
@@ -249,17 +226,6 @@ app.get('/urls', (req, res) => {
   const user = users[userId];
   res.render('urls_index', { urls: urlDatabase, user: user });
 });
-
-
-/*app.get('/urls', (req, res) => {
-  const templateVars = {
-    username: req.cookies.username,
-    urls: urlDatabase
-  };
-  res.render('urls_index', templateVars);
-}); */
-
-
 
 
 
