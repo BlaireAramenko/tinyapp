@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser');
+const bcrypt = require("bcryptjs");
 
 const generateRandomString = function() {
   const alphanumChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -152,18 +153,18 @@ app.post('/register', (req, res) => {
   }
 
   let userEmail = checkUserEmail(email);
-  if(userEmail) {
+  if (userEmail) {
     return res.status(400).send("the email is already there");
   }
 
   // generate new random ID for the user
   const userId = generateRandomString();
 
-  // add new user to the users object
+  const hashedPassword = bcrypt.hashSync(password, 10);
   users[userId] = {
     id: userId,
     email: email,
-    password: password // not a secure way to store pw but will update later
+    password: hashedPassword // updated to secure password
   };
 
   // set user_id cookie to newly generated user ID
@@ -181,7 +182,7 @@ app.post("/urls", (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
   if (!user) {
-    res.status(403).send('You need to be logged in to create new URLs!');
+    res.status(403).send('you need to be logged in to create new URLs!');
     return;
   }
   const shortURL = generateRandomString();
