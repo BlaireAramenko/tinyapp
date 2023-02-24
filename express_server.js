@@ -39,10 +39,24 @@ const users = {
     password: "dishwasher-funk",
   },
 };
-const urlDatabase = {
+/*const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+}; */
+
+const urlDatabase = {
+  b6UTxQ: {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "http://www.google.com",
+    userID: "aJ48lW",
+  },
 };
+
+// const variableExample = 'b6UTxQ';
+// urlDatabase[variableExample].longUrl;
 
 app.get("/", (req, res) => {
   res.send("Homepage!");
@@ -55,6 +69,7 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+
 
 app.get('/urls/new', (req, res) => {
   const userId = req.cookies.user_id;
@@ -71,11 +86,28 @@ app.get('/urls/new', (req, res) => {
   }
 });
 
+
+
 //make sure id is at the bottom of hard coded ones like urls/new
-app.get("/urls/:id", (req, res) => {
+/* app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: "http://www.lighthouselabs.ca" };
   res.render("urls_show", templateVars);
+}); */
+
+
+app.get("/urls/:id", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  const shortURL = req.params.id;
+  const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
+  const templateVars = {
+    user,
+    shortURL,
+    longURL
+  };
+  res.render("urls_show", templateVars);
 });
+
 
 
 
@@ -99,7 +131,7 @@ app.get('/register', (req, res) => {
   }
 });
 
-function checkUserEmail(email) {
+const checkUserEmail = (email) => {
   // check if email is already used
   for (const userId in users) {
     const user = users[userId];
@@ -108,7 +140,7 @@ function checkUserEmail(email) {
     }
   }
   return false;
-}
+};
 app.post('/register', (req, res) => {
  
   const { email, password } = req.body;
@@ -153,7 +185,17 @@ app.post("/urls", (req, res) => {
     return;
   }
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
+  // "xyz": {
+  //   longURL: "http://wkdkdkdk",
+  //   userID: kakkadfkakdf
+  // }
+  let temp = {
+    longURL: req.body.longURL,
+    userID: userId
+  };
+  urlDatabase[shortURL] = temp;
+  console.log("NEW URL ",urlDatabase);
+
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -170,7 +212,7 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  if (req.cookies.user_id) {
+  if (req.cookies['user_id']) {
     res.redirect('/urls');
   } else {
     res.render('urls_login');
@@ -182,7 +224,8 @@ app.get('/login', (req, res) => {
 
 
 app.post('/login', (req, res) => {
-  const email = req.body.email;
+  const email = req.body.username;
+  console.log(req.body);
   const password = req.body.password;
 
   if (!email || !password) {
@@ -217,9 +260,16 @@ app.post('/logout', (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+  console.log(req.params.id);
+  const longURL = urlDatabase[req.params.id].longURL;
+  console.log(urlDatabase['i3BoGr'].longURL);
+  if (!longURL) {
+    res.status(404).send('<h1>404 Page Not Found</h1>');
+  } else {
+    res.redirect(longURL);
+  }
 });
+
 
 app.get('/urls', (req, res) => {
   const userId = req.cookies.user_id;
