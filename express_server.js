@@ -20,9 +20,15 @@ app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// GET ROUTES
+
 
 app.get("/", (req, res) => {
-  res.send("Homepage!");
+  if (req.session.user_id) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 
@@ -88,7 +94,7 @@ app.get("/urls/:id", (req, res) => {
 
 
 app.get('/login', (req, res) => {
-  if (req.session['user_id']) {
+  if (req.session.user_id) {
     res.redirect('/urls');
   } else {
     res.render('urls_login');
@@ -122,6 +128,8 @@ app.get("/urls", (req, res) => {
     res.render("urls_index", templateVars);
   }
 });
+
+// POST ROUTES
 
 app.post('/register', (req, res) => {
  
@@ -193,8 +201,6 @@ app.post("/urls/:id", (req, res) => {
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-  
-  //const user = helpers.getUserByEmail(email, users);
   const user = getUserByEmail(email, users);
   if (user && bcrypt.compareSync(password, user.password)) {
     req.session.user_id = user.id;
