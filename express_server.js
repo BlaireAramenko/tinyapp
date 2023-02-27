@@ -8,6 +8,7 @@ const cookieSession = require('cookie-session');
 //const helpers = require('./helpers');
 const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers');
 const bcrypt = require("bcryptjs");
+const { users, urlDatabase } = require('./database.js');
 
 app.use(cookieSession({
   name: 'session',
@@ -23,7 +24,8 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// database
+/* moved to database file
+// databases
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -47,7 +49,7 @@ const urlDatabase = {
     longURL: "http://www.google.com",
     userID: "aJ48lW",
   },
-};
+}; */
 
 /* moved to helper file
 const generateRandomString = function() {
