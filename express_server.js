@@ -1,14 +1,13 @@
 const express = require("express");
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const app = express();
-const PORT = 8080; // default port 8080
+const bcrypt = require("bcryptjs");
+const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers');
+const { users, urlDatabase } = require('./database.js');
 // const cookieParser = require('cookie-parser'); replaced with cookie session
 const cookieSession = require('cookie-session');
-//const helpers = require('./helpers');
-const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers');
-const bcrypt = require("bcryptjs");
-const { users, urlDatabase } = require('./database.js');
+const app = express();
+const PORT = 8080;
 
 app.use(cookieSession({
   name: 'session',
@@ -17,57 +16,20 @@ app.use(cookieSession({
 }));
 
 app.set("view engine", "ejs");
-
 app.use(morgan('dev'));
-
 app.use(express.urlencoded({ extended: false }));
-
 app.use(bodyParser.urlencoded({ extended: false }));
 
-/* moved to database file
-// databases
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-};
-
-
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "http://www.lighthouselabs.ca",
-    userID: "aJ48lW",
-  },
-  i3BoGr: {
-    longURL: "http://www.google.com",
-    userID: "aJ48lW",
-  },
-}; */
-
-/* moved to helper file
-const generateRandomString = function() {
-  const alphanumChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += alphanumChars.charAt(Math.floor(Math.random() * alphanumChars.length));
-  }
-  return result;
-}; */
 
 app.get("/", (req, res) => {
   res.send("Homepage!");
 });
 
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
+
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
@@ -90,7 +52,6 @@ app.get('/urls/new', (req, res) => {
 });
 
 
-
 app.get('/register', (req, res) => {
   if (req.session.user_id) {
     res.redirect('/login');
@@ -111,6 +72,7 @@ app.get('/register', (req, res) => {
   }
 });
 
+
 app.get("/urls/:id", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
@@ -122,6 +84,43 @@ app.get("/urls/:id", (req, res) => {
     longURL
   };
   res.render("urls_show", templateVars);
+});
+
+
+app.get('/login', (req, res) => {
+  if (req.session['user_id']) {
+    res.redirect('/urls');
+  } else {
+    res.render('urls_login');
+    const formTemplate = `
+  `;
+    res.send(formTemplate);
+  }
+});
+
+
+app.get("/u/:id", (req, res) => {
+  console.log(req.params.id);
+  const longURL = urlDatabase[req.params.id].longURL;
+  console.log(urlDatabase['i3BoGr'].longURL);
+  if (!longURL) {
+    res.status(404).send('<h1>404 Page Not Found</h1>');
+  } else {
+    res.redirect(longURL);
+  }
+});
+
+
+app.get("/urls", (req, res) => {
+  const userId = req.session.user_id;
+  const user = users[userId];
+  if (!user) {
+    res.status(401).send("Uh oh! Log in or register to view your URLs.");
+  } else {
+    const urls = urlsForUser(userId, urlDatabase);
+    const templateVars = { urls, user };
+    res.render("urls_index", templateVars);
+  }
 });
 
 app.post('/register', (req, res) => {
@@ -191,16 +190,6 @@ app.post("/urls/:id", (req, res) => {
   res.redirect('/urls');
 });
 
-app.get('/login', (req, res) => {
-  if (req.session['user_id']) {
-    res.redirect('/urls');
-  } else {
-    res.render('urls_login');
-    const formTemplate = `
-  `;
-    res.send(formTemplate);
-  }
-});
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
@@ -224,39 +213,6 @@ app.post('/logout', (req, res) => {
   res.redirect('/login');
 });
 
-app.get("/u/:id", (req, res) => {
-  console.log(req.params.id);
-  const longURL = urlDatabase[req.params.id].longURL;
-  console.log(urlDatabase['i3BoGr'].longURL);
-  if (!longURL) {
-    res.status(404).send('<h1>404 Page Not Found</h1>');
-  } else {
-    res.redirect(longURL);
-  }
-});
-
-/* moved to helper
-const urlsForUser = (id, db) => {
-  const userURLs = {};
-  for (let url in db) {
-    if (id === db[url].userID) {
-      userURLs[url] = db[url];
-    }
-  }
-  return userURLs;
-}; */
-
-app.get("/urls", (req, res) => {
-  const userId = req.session.user_id;
-  const user = users[userId];
-  if (!user) {
-    res.status(401).send("Uh oh! Log in or register to view your URLs.");
-  } else {
-    const urls = urlsForUser(userId, urlDatabase);
-    const templateVars = { urls, user };
-    res.render("urls_index", templateVars);
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
