@@ -5,7 +5,8 @@ const app = express();
 const PORT = 8080; // default port 8080
 // const cookieParser = require('cookie-parser'); replaced with cookie session
 const cookieSession = require('cookie-session');
-const helpers = require('./helpers');
+//const helpers = require('./helpers');
+const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers');
 const bcrypt = require("bcryptjs");
 
 app.use(cookieSession({
@@ -48,6 +49,7 @@ const urlDatabase = {
   },
 };
 
+/* moved to helper file
 const generateRandomString = function() {
   const alphanumChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
@@ -55,7 +57,7 @@ const generateRandomString = function() {
     result += alphanumChars.charAt(Math.floor(Math.random() * alphanumChars.length));
   }
   return result;
-};
+}; */
 
 app.get("/", (req, res) => {
   res.send("Homepage!");
@@ -129,7 +131,8 @@ app.post('/register', (req, res) => {
     return;
   }
 
-  const userEmail = helpers.getUserByEmail(email, users);
+  //const userEmail = helpers.getUserByEmail(email, users);
+  const userEmail = getUserByEmail(email, users);
   if (userEmail) {
     return res.status(400).send("The email already exists.");
   }
@@ -200,7 +203,8 @@ app.get('/login', (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   
-  const user = helpers.getUserByEmail(email, users);
+  //const user = helpers.getUserByEmail(email, users);
+  const user = getUserByEmail(email, users);
   if (user && bcrypt.compareSync(password, user.password)) {
     req.session.user_id = user.id;
     res.redirect('/urls');
@@ -229,6 +233,7 @@ app.get("/u/:id", (req, res) => {
   }
 });
 
+/* moved to helper
 const urlsForUser = (id, db) => {
   const userURLs = {};
   for (let url in db) {
@@ -237,7 +242,7 @@ const urlsForUser = (id, db) => {
     }
   }
   return userURLs;
-};
+}; */
 
 app.get("/urls", (req, res) => {
   const userId = req.session.user_id;
