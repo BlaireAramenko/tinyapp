@@ -1,5 +1,5 @@
 // databases
-const users = {
+/* const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
@@ -22,6 +22,10 @@ const urlDatabase = {
     longURL: "http://www.google.com",
     userID: "aJ48lW",
   },
-};
+}; */
+
+const users = {};
+const urlDatabase = {};
+
 
 module.exports = { users, urlDatabase };
