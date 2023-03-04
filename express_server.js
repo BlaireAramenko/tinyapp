@@ -68,29 +68,9 @@ app.get('/register', (req, res) => {
   } else {
     res.render("urls_registration", templateVars);
 
-/* const formTemplate = `
-    <form method="POST" action="/register">
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
-      <br>
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
-      <br>
-      <input type="submit" value="Register">
-    </form>
-  `;
-    res.send(formTemplate); */
   }
 });
 
-/* app.get("/register", (req, res) => {
-  if (req.session.user_id) {
-    res.redirect('/urls');
-  } else {
-    res.render("urls_registration");
-  }
-});
-*/
 
 
 
@@ -109,13 +89,16 @@ app.get("/urls/:id", (req, res) => {
 
 
 app.get('/login', (req, res) => {
+  const templateVars = {
+    user: undefined
+  };
   if (req.session.user_id) {
     res.redirect('/urls');
   } else {
-    res.render('urls_login');
-    const formTemplate = `
-  `;
-    res.send(formTemplate);
+    res.render('urls_login', templateVars);
+    /*const formTemplate = `
+  `; 
+    res.send(formTemplate); */
   }
 });
 
@@ -146,35 +129,6 @@ app.get("/urls", (req, res) => {
 
 // POST ROUTES
 
-
-/* app.post('/register', (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    res.status(400).send('The email and password fields are required.');
-    return;
-  }
-
-  const userEmail = getUserByEmail(email, users);
-  if (userEmail) {
-    return res.status(400).send("The email already exists.");
-  }
-
-  // generate new random ID for the user
-  const userId = generateRandomString();
-
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  users[userId] = {
-    id: userId,
-    email: email,
-    password: hashedPassword // updated to secure password
-  };
-
-
-  req.session.user_id = userId;
-
-  // redirect the user to /urls
-  res.redirect('urls');
-}); */
 
 app.post('/register', (req, res) => {
   const { email, password } = req.body;

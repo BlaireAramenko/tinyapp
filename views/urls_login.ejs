@@ -17,6 +17,8 @@
   <title>Login Page</title>
 </head>
 <body>
+  <%- include('partials/_header.ejs') %>
+  <main>
   <h2>Welcome! Sign in below to start making tinyURLs 😄</h2>
   <a href="/register"> Not registered? → Register here! ← </a>
   <form method="POST" action="/login">
@@ -29,6 +31,7 @@
     <button type="submit">Login!</button>
 
   </form>
+</main>
  <!-- Bootstrap JS -->
  <script
  src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
