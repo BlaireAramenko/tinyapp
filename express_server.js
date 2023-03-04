@@ -181,13 +181,18 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  if (urlDatabase[req.params.id].userID === req.session["userID"]) {
+  console.log("req.params.id", req.params.id);
+  console.log("urlDatabase", urlDatabase);
+  console.log("req.session", req.session);
+  if (urlDatabase[req.params.id].userID === req.session.user_id) {
     delete urlDatabase[req.params.id];
     res.redirect("/urls");
   } else {
     res.status(403).send("Not allowed.");
   }
 });
+
+
 
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
