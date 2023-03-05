@@ -4,8 +4,9 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["screenshot of page where you can input url to shorten"](https://github.com/BlaireAramenko/tinyapp/blob/main/update-url.png?raw=true)
-!["screenshot of page that shows your new shortened url"](https://github.com/BlaireAramenko/tinyapp/blob/main/url-updated.png?raw=true)
+!["registration page"](https://github.com/BlaireAramenko/tinyapp/blob/main/images/registration-page.png)
+!["create url"](https://github.com/BlaireAramenko/tinyapp/blob/main/images/create-url.png)
+!["urls page"](https://github.com/BlaireAramenko/tinyapp/blob/main/images/urls-page.png)
 
 ## Dependencies
 
