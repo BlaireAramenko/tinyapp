@@ -72,21 +72,6 @@ app.get('/register', (req, res) => {
 });
 
 
-
-
-/* app.get("/urls/:id", (req, res) => {
-  const userId = req.session.user_id;
-  const user = users[userId];
-  const shortURL = req.params.id;
-  const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
-  const templateVars = {
-    user,
-    shortURL,
-    longURL
-  };
-  res.render("urls_show", templateVars);
-}); */
-
 app.get("/urls/:id", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
@@ -117,27 +102,12 @@ app.get('/login', (req, res) => {
 });
 
 
-/* app.get("/u/:id", (req, res) => {
-  console.log(req.params.id);
-  const longURL = urlDatabase[req.params.id].longURL;
-  console.log("longURL", longURL);
-  console.log(urlDatabase['i3BoGr'].longURL);
-  if (!longURL) {
-    res.status(404).send('<h1>404 Page Not Found</h1>');
-  } else {
-    res.redirect(longURL);
-  }
-}); */
-
 app.get("/u/:id", (req, res) => {
-  console.log(req.params.id);
   const url = urlDatabase[req.params.id];
   if (!url || !url.longURL) {
     res.status(404).send('<h1>404 Page Not Found</h1>');
   } else {
     const longURL = url.longURL;
-    console.log("longURL", longURL);
-    console.log(urlDatabase['i3BoGr'].longURL);
     res.redirect(longURL);
   }
 });
