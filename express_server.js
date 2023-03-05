@@ -74,11 +74,28 @@ app.get('/register', (req, res) => {
 
 
 
+/* app.get("/urls/:id", (req, res) => {
+  const userId = req.session.user_id;
+  const user = users[userId];
+  const shortURL = req.params.id;
+  const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
+  const templateVars = {
+    user,
+    shortURL,
+    longURL
+  };
+  res.render("urls_show", templateVars);
+}); */
+
 app.get("/urls/:id", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
   const shortURL = req.params.id;
   const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
+  if (!longURL) {
+    res.status(404).send('URL not found');
+    return;
+  }
   const templateVars = {
     user,
     shortURL,
@@ -96,20 +113,31 @@ app.get('/login', (req, res) => {
     res.redirect('/urls');
   } else {
     res.render('urls_login', templateVars);
-    /*const formTemplate = `
-  `; 
-    res.send(formTemplate); */
   }
 });
 
 
-app.get("/u/:id", (req, res) => {
+/* app.get("/u/:id", (req, res) => {
   console.log(req.params.id);
   const longURL = urlDatabase[req.params.id].longURL;
+  console.log("longURL", longURL);
   console.log(urlDatabase['i3BoGr'].longURL);
   if (!longURL) {
     res.status(404).send('<h1>404 Page Not Found</h1>');
   } else {
+    res.redirect(longURL);
+  }
+}); */
+
+app.get("/u/:id", (req, res) => {
+  console.log(req.params.id);
+  const url = urlDatabase[req.params.id];
+  if (!url || !url.longURL) {
+    res.status(404).send('<h1>404 Page Not Found</h1>');
+  } else {
+    const longURL = url.longURL;
+    console.log("longURL", longURL);
+    console.log(urlDatabase['i3BoGr'].longURL);
     res.redirect(longURL);
   }
 });
@@ -135,7 +163,7 @@ app.post('/register', (req, res) => {
   if (!email || !password) {
     res.status(400).send('The email and password fields are required.');
     return;
-  }  if (getUserByEmail(email, users)) {
+  } if (getUserByEmail(email, users)) {
     res.status(400).send("The email already exists.");
     return;
   }
@@ -175,7 +203,7 @@ app.post("/urls", (req, res) => {
     userID: userId
   };
   urlDatabase[shortURL] = temp;
-  console.log("NEW URL ",urlDatabase);
+  console.log("NEW URL ", urlDatabase);
 
   res.redirect(`/urls/${shortURL}`);
 });
