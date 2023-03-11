@@ -186,9 +186,6 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  console.log("req.params.id", req.params.id);
-  console.log("urlDatabase", urlDatabase);
-  console.log("req.session", req.session);
   if (urlDatabase[req.params.id].userID === req.session.user_id) {
     delete urlDatabase[req.params.id];
     res.redirect("/urls");
@@ -199,9 +196,6 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //edit route
 app.post("/urls/:id", (req, res) => {
-  console.log("req.params.id", req.params.id);
-  console.log("urlDatabase", urlDatabase);
-  console.log("req.session", req.session);
   const shortURL = req.params.id;
   const userId = req.session.user_id;
   const user = users[userId];
