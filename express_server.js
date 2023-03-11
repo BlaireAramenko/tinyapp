@@ -74,7 +74,14 @@ app.get('/register', (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
+  if (!user) {
+    res.status(401).send("Uh oh! Log in or register to view your URLs.");
+  }
   const shortURL = req.params.id;
+  if (urlDatabase[shortURL].userID !== userId) {
+    res.status(403).send('Error. You do not own the URL.');
+    return;
+  }
   const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
   if (!longURL) {
     res.status(404).send('URL not found');
