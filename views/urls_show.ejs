@@ -17,11 +17,12 @@
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
+        <h5 class="card-title">LONG URL: <%= longURL %></h5>
+        <h5 class="card-title">SHORT URL: <%= shortURL %></h5>
         <form method="POST" action="/urls/<%= 'user_id' %>">
       <a>  Click submit to create a short URL! </a>
           <div class="form-group">
-            <label for="longURL">Long URL:</label>
+        <!--    <label for="longURL">Long URL:</label> -->
             <input type="text" class="form-control" id="longURL" name="longURL" value="<%= longURL %>">
           </div>
           <button type="submit" class="btn btn-primary">Submit</button>

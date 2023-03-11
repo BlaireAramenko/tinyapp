@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const bcrypt = require("bcryptjs");
 const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers');
 const { users, urlDatabase } = require('./database.js');
-// const cookieParser = require('cookie-parser'); replaced with cookie session
 const cookieSession = require('cookie-session');
 const app = express();
 const PORT = 8080;
@@ -104,9 +103,12 @@ app.get('/login', (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   const url = urlDatabase[req.params.id];
+  console.log('url', url);
   if (!url || !url.longURL) {
+    console.log('url missing error');
     res.status(404).send('<h1>404 Page Not Found</h1>');
   } else {
+    console.log('I have my url');
     const longURL = url.longURL;
     res.redirect(longURL);
   }
@@ -120,6 +122,7 @@ app.get("/urls", (req, res) => {
     res.status(401).send("Uh oh! Log in or register to view your URLs.");
   } else {
     const urls = urlsForUser(userId, urlDatabase);
+    console.log('urls', urls);
     const templateVars = { urls, user };
     res.render("urls_index", templateVars);
   }
@@ -167,7 +170,9 @@ app.post("/urls", (req, res) => {
     return;
   }
   const shortURL = generateRandomString();
-
+  if (req.body.longURL.substring(0, 7) !== 'http://') {
+    req.body.longURL = 'http://' + req.body.longURL;
+  }
   let temp = {
     longURL: req.body.longURL,
     userID: userId
@@ -175,7 +180,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = temp;
   console.log("NEW URL ", urlDatabase);
 
-  res.redirect(`/urls/${shortURL}`);
+  res.redirect("/urls");
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -209,6 +214,18 @@ app.post("/login", (req, res) => {
   } else {
     res.status(403).send('Oops! Invalid email or password. Try again.');
   }
+
+  const userId = generateRandomString();
+
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  users[userId] = {
+    id: userId,
+    email: email,
+    password: hashedPassword // updated to secure password
+  };
+
+
+  req.session.user_id = userId;
 });
 
 

@@ -32,8 +32,7 @@
         <tbody>
           <% for (let id in urls) { %>
             <tr>
-            <!--  <td><%= id %></td> -->
-              <td><a href="/u/<%= 'user_id' %>"><%= id %></a></td>
+              <td><a href="/u/<%= id %>"><%= id %></a></td>
               <td><%= urls[id].longURL %></td>
               <td>
               <form method="POST" action="/urls/<%= id %>/delete">
