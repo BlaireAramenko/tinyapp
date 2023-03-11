@@ -203,6 +203,16 @@ app.post("/urls/:id", (req, res) => {
   console.log("urlDatabase", urlDatabase);
   console.log("req.session", req.session);
   const shortURL = req.params.id;
+  const userId = req.session.user_id;
+  const user = users[userId];
+  if (!user) {
+    res.status(403).send('Log in to update URL.');
+    return;
+  }
+  if (urlDatabase[shortURL].userID !== userId) {
+    res.status(403).send('Error. You do not own the URL.');
+    return;
+  }
   urlDatabase[shortURL] = {
     //spread operator
     ...urlDatabase[shortURL],
@@ -213,12 +223,6 @@ app.post("/urls/:id", (req, res) => {
 });
 
 
-/* app.post("/urls/:id", (req, res) => {
-  const shortURL = req.params.id;
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect('/urls');
-}); */
-
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
@@ -226,6 +230,7 @@ app.post("/login", (req, res) => {
   console.log(email, password);
   if (user && bcrypt.compareSync(password, user.password)) {
     req.session.user_id = user.id;
+    console.log('req.session.user_id', req.session.user_id);
     res.redirect('/urls');
   } else {
     res.status(403).send('Oops! Invalid email or password. Try again.');
