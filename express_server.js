@@ -110,6 +110,7 @@ app.get("/u/:id", (req, res) => {
   } else {
     console.log('I have my url');
     const longURL = url.longURL;
+    console.log(longURL);
     res.redirect(longURL);
   }
 });
@@ -170,11 +171,12 @@ app.post("/urls", (req, res) => {
     return;
   }
   const shortURL = generateRandomString();
-  if (req.body.longURL.substring(0, 7) !== 'http://') {
-    req.body.longURL = 'http://' + req.body.longURL;
+  let newLongURL = req.body.longURL;
+  if (newLongURL.substring(0, 7) !== 'http://') {
+    newLongURL = 'http://' + newLongURL;
   }
   let temp = {
-    longURL: req.body.longURL,
+    longURL: newLongURL,
     userID: userId
   };
   urlDatabase[shortURL] = temp;
@@ -195,13 +197,27 @@ app.post("/urls/:id/delete", (req, res) => {
   }
 });
 
-
-
+//edit route
 app.post("/urls/:id", (req, res) => {
+  console.log("req.params.id", req.params.id);
+  console.log("urlDatabase", urlDatabase);
+  console.log("req.session", req.session);
+  const shortURL = req.params.id;
+  urlDatabase[shortURL] = {
+    //spread operator
+    ...urlDatabase[shortURL],
+    longURL: req.body.longURL
+  };
+  console.log("urlDatabase[shortURL]", urlDatabase[shortURL]);
+  res.redirect('/urls');
+});
+
+
+/* app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect('/urls');
-});
+}); */
 
 
 app.post("/login", (req, res) => {

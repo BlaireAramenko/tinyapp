@@ -39,7 +39,11 @@
                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
               </form>
               </td>
-              <td><a href="/urls/<%= id %>">Edit</a></td>
+              <td>
+              <form method="POST" action="/urls/<%= id %>/edit">
+                <a href="/urls/<%= id %>">Edit</a>
+              </form>
+              </td>
             </tr>
           <% } %>
         </tbody>
