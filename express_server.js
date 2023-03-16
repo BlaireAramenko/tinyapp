@@ -189,7 +189,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = temp;
   console.log("NEW URL ", urlDatabase);
 
-  res.redirect("/urls");
+  res.redirect("/urls/:id");
 });
 
 app.post("/urls/:id/delete", (req, res) => {
